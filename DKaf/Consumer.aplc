@@ -1,0 +1,53 @@
+:Class Consumer
+    ⍝ Class encapsulating DKaf.Consumer
+    ⍝
+    ⍝    
+    ⎕USING←'Confluent.Kafka,/Users/stefan/work/mybuild/Confluent.Kafka.dll'
+    ⎕USING,←⊂',/Users/stefan/work/mybuild/DyKa.dll'
+    
+    :Field public consumer
+
+    :Field _groupid
+    :Field _topic
+    :Field _bserv
+
+    :Property groupid
+        :Access public
+        ∇ r←get
+          r←_groupid
+        ∇
+    :EndProperty
+
+    :Property topic
+        :Access public
+        ∇ r←get
+          r←_topic
+        ∇
+    :EndProperty
+
+    :Property bootstrap
+        :Access public
+        ∇ r←get
+          r←_bserv
+        ∇
+    :EndProperty
+
+    ∇ Ctor(bss groupid topic)
+      :Access public
+      :Implements constructor
+      _bserv ← bss
+
+      consumer ← ⎕NEW DyKa.StringConsumer(bss groupid topic)
+    ∇
+
+    ∇ r←Consume timeout ⍝ Consume a Kafka message <string, string>.
+      :Access public
+      consume_result ← consumer.Consume(timeout)
+
+      :If ⎕NULL ≡ consume_result
+          r←⍬
+      :Else
+          r←consume_result.Message.Value
+      :EndIf
+    ∇
+:EndClass

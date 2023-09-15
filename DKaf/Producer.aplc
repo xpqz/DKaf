@@ -1,0 +1,26 @@
+:Class Producer ⍝ Producer.aplc
+    
+    ⎕USING←'Confluent.Kafka,/Users/stefan/work/mybuild/Confluent.Kafka.dll'
+    ⎕USING,←⊂',/Users/stefan/work/mybuild/DyKa.dll'
+
+    :Field public producer
+
+    ∇ Ctor arg
+      :Access public
+      :Implements constructor
+
+      ⍝ Initialise the underlying Producer.
+      ⍝
+      ⍝ arg is either a charvec or a Confluent.Kafka.ProducerConfig.
+      ⍝ Note: the producer expects mesasges to be of the .NET type
+      ⍝
+      ⍝      key    val
+      ⍝    <string, string>
+      producer ← ⎕NEW DyKa.Producer(arg)
+    ∇
+
+    ∇ Produce(topic key value) ;msg ⍝ Send a Kafka message <key, value>.
+      :Access public      
+      producer.Produce(topic value key) ⍝ Note: parameter order
+    ∇
+:EndClass

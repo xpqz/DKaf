@@ -1,0 +1,19 @@
+ConfluentCloudConfig ← {
+    ⍝ ⍵ is the bootstrap server(s)
+    ⍝ Expects environment variables
+    ⍝
+    ⍝ CONFLUENT_API_KEY
+    ⍝ CONFLUENT_API_SECRET
+    ⍝
+    ⍝ ccc ← ConfluentCloudConfig ' pkc-lzvrd.us-west4.gcp.confluent.cloud:9092'
+
+    ⎕USING←'Confluent.Kafka,/Users/stefan/work/mybuild/Confluent.Kafka.dll'
+
+    pc ← ⎕NEW ProducerConfig
+    pc.BootstrapServers ← ⍵
+    pc.SaslMechanism ← SaslMechanism.Plain
+    pc.SecurityProtocol ← SecurityProtocol.SaslSsl
+    pc.SaslUsername ← 2 ⎕NQ #'GetEnvironment' 'CONFLUENT_API_KEY'
+    pc.SaslPassword ← 2 ⎕NQ #'GetEnvironment' 'CONFLUENT_API_SECRET'
+    pc
+}
