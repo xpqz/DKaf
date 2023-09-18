@@ -1,0 +1,6 @@
+serdes ← {
+    ⍝ Serialise/deserialise arbitrary APL arrays
+    ⍺ ← 0
+    0=⍺: ⊃⌽2 3(219⌶)1(220⌶)⍵         ⍝ Serialise and compress
+    0(220⌶)¯2(219⌶){⍵-256}@{⍵>127}⍵  ⍝ Decompress and deserialise
+}

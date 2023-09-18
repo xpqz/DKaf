@@ -1,7 +1,5 @@
 :Class Consumer
     ⍝ Class encapsulating DKaf.Consumer
-    ⍝
-    ⍝    
     ⎕USING←'Confluent.Kafka,/Users/stefan/work/mybuild/Confluent.Kafka.dll'
     ⎕USING,←⊂',/Users/stefan/work/mybuild/DyKa.dll'
     
@@ -32,15 +30,19 @@
         ∇
     :EndProperty
 
-    ∇ Ctor(bss groupid topic)
+    ∇ Ctor(type bss groupid topic)
       :Access public
       :Implements constructor
       _bserv ← bss
 
-      consumer ← ⎕NEW DyKa.StringConsumer(bss groupid topic)
+      :If type=0
+        consumer ← ⎕NEW DyKa.StringConsumer(bss groupid topic)
+      :Else
+        consumer ← ⎕NEW DyKa.Consumer(bss groupid topic)
+      :End
     ∇
 
-    ∇ r←Consume timeout ⍝ Consume a Kafka message <string, string>.
+    ∇ r←Consume timeout 
       :Access public
       consume_result ← consumer.Consume(timeout)
 
