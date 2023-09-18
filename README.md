@@ -143,3 +143,39 @@ To produce and consume arbitrary APL arrays, use the included `serdes` function:
 │ └─────┘ │
 └∊────────┘
 ```
+
+## Pipe a mixed array from Dyalog into sqlite3 via Kafka
+
+In practice, you want to do this differently (Connect).
+
+You need [jq](https://jqlang.github.io/jq/), [sqlite3](https://www.sqlite.org/index.html) and [kcat](https://github.com/edenhill/kcat), and a file containing a bunch of names (100 of them).
+
+1. Create a sqlite3 database:
+    ```
+    sqlite3 employees.db "CREATE TABLE IF NOT EXISTS employees (id INTEGER, name TEXT, dept TEXT);"
+    ```
+2. Make a topic:
+    ```
+    kafka-topics --create --topic users --partitions 1 --replication-factor 1 --bootstrap-server localhost:9092
+    ````
+3. Generate some data:
+    ```apl
+    names ← ⊃⎕NGET 'names.txt'1 ⍝ Text file with one name per line
+    depts ← (⊂⍤?⍨∘≢⌷⊢)100⍴'Engineering' 'Accounts' 'Ops' 'Sales' 'Support' ⍝ Make up some department names
+    users ← ⎕NS¨(≢names)⍴⊂⍬
+    users.name ← names
+    users.dept ← depts
+    users.id ← ⍳≢names
+4. Write the data onto the topic as `⎕JSON`:
+    ```apl
+    p ← ⎕NEW Producer(0'localhost:9092')
+    _←{_←p.Produce 'users' (⍕⍵.id) (⎕JSON⍵)⋄⍬}¨users
+    ```
+5. Read data from topic, parse JSON and write to sqlite3:
+    ```sh
+    kcat -Ct users -b localhost:9092 -o beginning -e | \
+    while IFS= read -r line; do \
+        sql=$(echo "$line" | jq -r '"INSERT INTO employees (id, name, dept) VALUES (\(.id), \"\(.name)\", \"\(.dept)\");"'); \
+        echo "$sql" | sqlite3 employees.db; \
+    done
+    ```

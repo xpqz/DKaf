@@ -10,14 +10,15 @@
       :Implements constructor
       ⍝ arg is either a charvec or a Confluent.Kafka.ProducerConfig.
       :If type=0
-        producer ← ⎕NEW DyKa.StringProducer(arg)
+        producer ← ⎕NEW DyKa.StringProducer(⊂arg)
       :Else
         producer ← ⎕NEW DyKa.Producer(⊂arg)
       :End
     ∇
 
-    ∇ Produce(topic key value) ;msg ⍝ Send a Kafka message <key, value>.
+    ∇ {r}←Produce(topic key value) ;msg ⍝ Send a Kafka message <key, value>.
       :Access public      
       producer.Produce(topic value key) ⍝ Note: parameter order
+      r←⍬
     ∇
 :EndClass
